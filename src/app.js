@@ -5,6 +5,12 @@ import authRoutes from './routes/auth.routes.js';
 import productosRoutes from './routes/productos.routes.js';
 //npm install cors
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 const corsOptions={
@@ -15,6 +21,7 @@ const corsOptions={
 
 app.use(cors(corsOptions)); //habilitar los cors
 app.use(express.json());   //para que interprete los onjetos json
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));//imagenes publicas en internet
 
 //rutas
 app.use('/api/auth', authRoutes);

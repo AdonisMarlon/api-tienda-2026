@@ -17,13 +17,17 @@ export const createProducto = async (req, res) => {
     try {
         const { prod_codigo, prod_nombre, prod_stock, prod_precio } = req.body;
         
+        // Atrapamos el nombre de la imagen si existe, sino lo dejamos como nulo
+        const prod_imagen = req.file ? '/uploads/' + req.file.filename : null;
+        
         const [result] = await conmysql.query(
-            'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_activo) VALUES (?, ?, ?, ?, 1)',
-            [prod_codigo, prod_nombre, prod_stock, prod_precio]
+            'INSERT INTO productos (prod_codigo, prod_nombre, prod_stock, prod_precio, prod_imagen, prod_activo) VALUES (?, ?, ?, ?, ?, 1)',
+            [prod_codigo, prod_nombre, prod_stock, prod_precio, prod_imagen]
         );
         
         res.status(201).json({ prod_id: result.insertId, message: 'Producto creado con éxito' });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             message: 'Error en el servidor al crear producto'
         });
@@ -36,10 +40,23 @@ export const putProducto = async (req, res) => {
         const { id } = req.params;
         const { prod_codigo, prod_nombre, prod_stock, prod_precio } = req.body;
         
-        const [result] = await conmysql.query(
-            'UPDATE productos SET prod_codigo = ?, prod_nombre = ?, prod_stock = ?, prod_precio = ? WHERE prod_id = ?',
-            [prod_codigo, prod_nombre, prod_stock, prod_precio, id]
-        );
+        // Atrapamos la nueva imagen si el usuario decide cambiarla
+        const prod_imagen = req.file ? '/uploads/' + req.file.filename : null;
+        
+        // Preparamos la consulta dinámica
+        let query = 'UPDATE productos SET prod_codigo = ?, prod_nombre = ?, prod_stock = ?, prod_precio = ?';
+        let params = [prod_codigo, prod_nombre, prod_stock, prod_precio];
+
+        // Si el usuario subió una imagen nueva, la agregamos a la actualización
+        if (prod_imagen) {
+            query += ', prod_imagen = ?';
+            params.push(prod_imagen);
+        }
+
+        query += ' WHERE prod_id = ?';
+        params.push(id);
+        
+        const [result] = await conmysql.query(query, params);
         
         res.json({ message: "Producto actualizado con éxito" });
     } catch (error) {
@@ -55,7 +72,6 @@ export const deleteProducto = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Cambiamos el estado a 0 (inactivo) en lugar de hacer un DELETE
         const [result] = await conmysql.query('UPDATE productos SET prod_activo = 0 WHERE prod_id = ?', [id]);
         
         if (result.affectedRows === 0) {
