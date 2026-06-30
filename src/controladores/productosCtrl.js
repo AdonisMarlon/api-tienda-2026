@@ -1,7 +1,7 @@
 import { conmysql } from '../db.js';
 import fs from 'fs'; // Módulo nativo de Node para leer archivos
 import axios from 'axios'; // Para comunicarnos con GitHub
-
+    
 // OBTENER PRODUCTOS
 export const getProductos = async (req, res) => {
     try {

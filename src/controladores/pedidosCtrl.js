@@ -1,3 +1,5 @@
+import { conmysql } from '../db.js';
+
 export const postInsertarPedido = async (req, res) => {
     const conexion = await conmysql.getConnection();
 
