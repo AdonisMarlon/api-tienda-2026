@@ -3,6 +3,7 @@ import cors from 'cors';
 import clientesRoutes from './routes/clientes.routes.js'
 import authRoutes from './routes/auth.routes.js';
 import productosRoutes from './routes/productos.routes.js';
+import pedidosRoutes from './routes/pedidos.routes.js';
 //npm install cors
 
 import path from 'path';
@@ -27,6 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));//imagen
 app.use('/api/auth', authRoutes);
 app.use('/api', clientesRoutes);
 app.use('/api', productosRoutes);
+app.use('/api', pedidosRoutes);
 
 app.use((req, res, next) => {
     res.status(404).json({
