@@ -52,7 +52,7 @@ export const postInsertarPedido = async (req, res) => {
 
             idCliente = cliente.insertId;
         }
-        let estadoNumerico = (ped_estado === 'PAGADO') ? 1 : 0;
+        //let estadoNumerico = (ped_estado === 'PAGADO') ? 1 : 0;
         // Pedido
         const [pedido] = await conexion.query(
             `INSERT INTO pedidos
@@ -67,7 +67,7 @@ export const postInsertarPedido = async (req, res) => {
                 idCliente,
                 ped_fecha,
                 usr_id,
-                estadoNumerico
+                ped_estado
             ]
         );
         const ped_id = pedido.insertId;
