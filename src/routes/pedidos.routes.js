@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPedidos, getPedidosxid, postInsertarPedido , putPedido, patchPedido, deletePedido } from '../controladores/pedidosCtrl.js'
+import { getPedidos, getPedidosxid, postInsertarPedido , putPedido } from '../controladores/pedidosCtrl.js'
 
 import { verificarToken } from '../middlewares/auth.js';
 
