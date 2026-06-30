@@ -67,7 +67,7 @@ export const postInsertarPedido = async (req, res) => {
                 idCliente,
                 ped_fecha,
                 usr_id,
-                ped_estado
+                estadoNumerico
             ]
         );
         const ped_id = pedido.insertId;
