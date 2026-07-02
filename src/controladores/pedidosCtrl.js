@@ -10,7 +10,6 @@ export const getPedidos = async (req, res) => {
                 p.cli_id,
                 c.cli_nombre,
                 p.ped_fecha,
-                p.ped_total,
                 p.usr_id,
                 p.ped_estado
             FROM pedidos p
