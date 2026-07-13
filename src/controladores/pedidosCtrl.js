@@ -1,9 +1,8 @@
 import { conmysql } from '../db.js';
-
+import { notificarNuevoPedido } from '../services/notification.service.js';
 
 export const getPedidos = async (req, res) => {
     try {
-        // Consulta principal: une pedidos con clientes y usuarios
         const [pedidos] = await conmysql.query(`
             SELECT 
                 p.ped_id,
@@ -17,7 +16,6 @@ export const getPedidos = async (req, res) => {
             ORDER BY p.ped_fecha DESC
         `);
 
-        // Obtener los detalles de todos los pedidos
         const [detalles] = await conmysql.query(`
             SELECT 
                 d.det_id,
@@ -31,7 +29,6 @@ export const getPedidos = async (req, res) => {
             LEFT JOIN productos pr ON d.prod_id = pr.prod_id
         `);
 
-        // Unir los detalles a cada pedido
         const pedidosConDetalles = pedidos.map(pedido => {
             const detallesPedido = detalles.filter(d => d.ped_id === pedido.ped_id);
             return { ...pedido, detalles: detallesPedido };
@@ -48,12 +45,10 @@ export const getPedidoxId = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validar que venga el ID
         if (!id) {
             return res.status(400).json({ message: 'El ID del pedido es obligatorio.' });
         }
 
-        // Consulta principal: datos del pedido y cliente
         const [pedidos] = await conmysql.query(`
             SELECT 
                 p.ped_id,
@@ -73,7 +68,6 @@ export const getPedidoxId = async (req, res) => {
 
         const pedido = pedidos[0];
 
-        // Obtener detalles del pedido
         const [detalles] = await conmysql.query(`
             SELECT 
                 d.det_id,
@@ -117,14 +111,14 @@ export const postInsertarPedido = async (req, res) => {
             ped_estado,
             detalles
         } = req.body;
-        // Validaciones
+        
         if (!detalles || detalles.length === 0) {
             throw new Error("El pedido no tiene productos.");
         }
+        
         let idCliente = Number(cli_id);
-        // Cliente nuevo
+        
         if (idCliente === 0) {
-
             const [cliente] = await conexion.query(
                 `INSERT INTO clientes
                 (
@@ -147,11 +141,9 @@ export const postInsertarPedido = async (req, res) => {
                     cli_ciudad
                 ]
             );
-
             idCliente = cliente.insertId;
         }
         
-        // Pedido
         const [pedido] = await conexion.query(
             `INSERT INTO pedidos
             (
@@ -169,7 +161,7 @@ export const postInsertarPedido = async (req, res) => {
             ]
         );
         const ped_id = pedido.insertId;
-        // Detalle
+        
         for (const item of detalles) {
             if (Number(item.det_cantidad) <= 0) {
                 throw new Error(`Cantidad inválida del producto ${item.prod_id}`);
@@ -177,7 +169,7 @@ export const postInsertarPedido = async (req, res) => {
             if (Number(item.det_precio) <= 0) {
                 throw new Error(`Precio inválido del producto ${item.prod_id}`);
             }
-            // Verificar existencia del producto
+            
             const [producto] = await conexion.query(
                 "SELECT prod_id FROM productos WHERE prod_id=?",
                 [item.prod_id]
@@ -185,6 +177,7 @@ export const postInsertarPedido = async (req, res) => {
             if (producto.length === 0) {
                 throw new Error(`El producto ${item.prod_id} no existe.`);
             }
+            
             await conexion.query(
                 `INSERT INTO pedidos_detalle
                 (
@@ -202,7 +195,27 @@ export const postInsertarPedido = async (req, res) => {
                 ]
             );
         }
+
+        // Enviar notificacion al administrador
+        try {
+            const [adminRows] = await conexion.query(
+                'SELECT fcm_token FROM usuarios WHERE usr_rol = 1 AND fcm_token IS NOT NULL LIMIT 1'
+            );
+
+            if (adminRows.length > 0 && adminRows[0].fcm_token) {
+                const adminToken = adminRows[0].fcm_token;
+                const nombreCliente = cli_nombre || 'Cliente';
+                await notificarNuevoPedido(ped_id, nombreCliente, adminToken);
+                console.log(`Notificacion enviada al administrador por pedido #${ped_id}`);
+            } else {
+                console.log('No hay token de administrador registrado');
+            }
+        } catch (notificationError) {
+            console.error('Error al enviar notificacion:', notificationError);
+        }
+
         await conexion.commit();
+        
         res.status(201).json({
             ok: true,
             mensaje: "Pedido registrado correctamente.",
@@ -217,9 +230,7 @@ export const postInsertarPedido = async (req, res) => {
             ok: false,
             mensaje: error.message
         });
-
     } finally {
         conexion.release();
     }
-
 };

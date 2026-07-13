@@ -68,3 +68,35 @@ export const registrarUsuario = async (req, res) => {
         res.status(500).json({ error: 'Error al registrar el usuario' });
     }
 };
+
+
+// GUARDAR TOKEN FCM DEL USUARIO
+export const guardarTokenFCM = async (req, res) => {
+    try {
+    const { fcmToken } = req.body;
+    const userId = req.user.id; // Desde el token JWT (verificarToken)
+
+    if (!fcmToken) {
+        return res.status(400).json({ error: 'Token FCM es requerido' });
+    }
+
+    // Guardar en la base de datos
+    const [result] = await conmysql.query(
+        'UPDATE usuarios SET fcm_token = ? WHERE usr_id = ?',
+        [fcmToken, userId]
+    );
+
+    if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ 
+        message: 'Token FCM guardado correctamente',
+        usr_id: userId
+    });
+
+    } catch (error) {
+        console.error('Error al guardar token FCM:', error);
+        res.status(500).json({ error: 'Error al guardar token' });
+    }
+};
