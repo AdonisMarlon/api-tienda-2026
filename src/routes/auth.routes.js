@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { login, registrarUsuario,guardarTokenFCM } from '../controladores/authCtrl.js'; 
+import { verificarToken } from '../middlewares/auth.js';
 
 const router = Router();
 
