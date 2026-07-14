@@ -8,6 +8,15 @@ const __dirname = path.dirname(__filename);
 
 function initFirebase() {
     try {
+        // Verificar que admin esté definido
+        console.log('🔍 admin está definido?', !!admin);
+        console.log('🔍 admin.credential está definido?', admin && !!admin.credential);
+        
+        if (!admin || !admin.credential) {
+            console.error('❌ firebase-admin no se cargó correctamente');
+            return null;
+        }
+
         // Intentar desde variable de entorno (Render)
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
             console.log('🔍 Variable FIREBASE_SERVICE_ACCOUNT encontrada');
