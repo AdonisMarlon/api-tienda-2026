@@ -1,5 +1,4 @@
-import admin from 'firebase-admin/app';
-import { cert } from 'firebase-admin/credential';
+import admin from 'firebase-admin';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,26 +8,30 @@ const __dirname = path.dirname(__filename);
 
 function initFirebase() {
     try {
-        const serviceAccountPath = path.join(__dirname, '../service-account-key.json');
-        if (fs.existsSync(serviceAccountPath)) {
-            const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-            if (!admin.apps || admin.apps.length === 0) {
-                admin.initializeApp({
-                    credential: cert(serviceAccount)
-                });
-            }
-            console.log('✅ Firebase inicializado desde archivo');
-            return admin;
-        }
-
+        // Intentar desde variable de entorno (Render)
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+            console.log('🔍 Variable FIREBASE_SERVICE_ACCOUNT encontrada');
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
             if (!admin.apps || admin.apps.length === 0) {
                 admin.initializeApp({
-                    credential: cert(serviceAccount)
+                    credential: admin.credential.cert(serviceAccount)
                 });
             }
             console.log('✅ Firebase inicializado desde variable de entorno');
+            return admin;
+        }
+
+        // Intentar desde archivo (desarrollo local)
+        const serviceAccountPath = path.join(__dirname, '../service-account-key.json');
+        if (fs.existsSync(serviceAccountPath)) {
+            console.log('🔍 Archivo service-account-key.json encontrado');
+            const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+            if (!admin.apps || admin.apps.length === 0) {
+                admin.initializeApp({
+                    credential: admin.credential.cert(serviceAccount)
+                });
+            }
+            console.log('✅ Firebase inicializado desde archivo');
             return admin;
         }
 
