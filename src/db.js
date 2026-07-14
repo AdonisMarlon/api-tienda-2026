@@ -6,8 +6,5 @@ export const conmysql = createPool({
     user: BD_USER,
     password: BD_PASSWORD,
     database: BD_DATABASE,
-    port: BD_PORT,
-    waitForConnections: true,
-    connectionLimit: 3,  
-    queueLimit: 0
+    port: BD_PORT
 })
