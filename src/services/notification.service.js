@@ -2,7 +2,7 @@ import admin from '../firebase.js';
 
 export const enviarNotificacion = async (fcmToken, title, body) => {
     if (!admin) {
-        console.log('⚠️ Firebase no inicializado. Notificación no enviada.');
+        console.log(' Firebase no inicializado. Notificación no enviada.');
         return null;
     }
 
@@ -22,10 +22,10 @@ export const enviarNotificacion = async (fcmToken, title, body) => {
 
     try {
         const response = await admin.messaging().send(message);
-        console.log('✅ Notificación enviada exitosamente:', response);
+        console.log(' Notificación enviada exitosamente:', response);
         return response;
     } catch (error) {
-        console.error('❌ Error al enviar notificación:', error);
+        console.error(' Error al enviar notificación:', error);
         throw error;
     }
 };

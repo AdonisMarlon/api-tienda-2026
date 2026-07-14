@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename);
 function initFirebase() {
     try {
         // Verificar que admin esté definido
-        console.log('🔍 admin está definido?', !!admin);
-        console.log('🔍 admin.credential está definido?', admin && !!admin.credential);
+        console.log(' admin está definido?', !!admin);
+        console.log(' admin.credential está definido?', admin && !!admin.credential);
         
         if (!admin || !admin.credential) {
-            console.error('❌ firebase-admin no se cargó correctamente');
+            console.error(' firebase-admin no se cargó correctamente');
             return null;
         }
 
@@ -26,7 +26,7 @@ function initFirebase() {
                     credential: admin.credential.cert(serviceAccount)
                 });
             }
-            console.log('✅ Firebase inicializado desde variable de entorno');
+            console.log(' Firebase inicializado desde variable de entorno');
             return admin;
         }
 
@@ -40,14 +40,14 @@ function initFirebase() {
                     credential: admin.credential.cert(serviceAccount)
                 });
             }
-            console.log('✅ Firebase inicializado desde archivo');
+            console.log(' Firebase inicializado desde archivo');
             return admin;
         }
 
-        console.warn('⚠️ No hay credenciales de Firebase');
+        console.warn(' No hay credenciales de Firebase');
         return null;
     } catch (error) {
-        console.error('❌ Error al inicializar Firebase:', error.message);
+        console.error(' Error al inicializar Firebase:', error.message);
         return null;
     }
 }
