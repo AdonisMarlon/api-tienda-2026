@@ -4,7 +4,8 @@ import admin from '../firebase.js';
  * Envía una notificación push a un dispositivo
  */
 export const enviarNotificacion = async (fcmToken, title, body) => {
-    if (!fcmToken) {
+    
+    if (!admin) {
         console.log(' No hay token FCM para enviar notificación');
         return null;
     }
@@ -26,7 +27,7 @@ export const enviarNotificacion = async (fcmToken, title, body) => {
 
     try {
         const response = await admin.messaging().send(message);
-        console.log('✅ Notificación enviada exitosamente:', response);
+        console.log(' Notificación enviada exitosamente:', response);
         return response;
     } catch (error) {
         console.error(' Error al enviar notificación:', error);
@@ -38,7 +39,7 @@ export const enviarNotificacion = async (fcmToken, title, body) => {
  * Envía notificación de nuevo pedido al administrador
  */
 export const notificarNuevoPedido = async (pedidoId, nombreCliente, adminToken) => {
-    const title = '🛒 Nuevo Pedido';
+    const title = ' Nuevo Pedido';
     const body = `Pedido #${pedidoId} creado por ${nombreCliente}`;
     return await enviarNotificacion(adminToken, title, body);
 };
